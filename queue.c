@@ -4,6 +4,19 @@
 
 #include "queue.h"
 
+#ifndef HAVE_STRLCPY
+void strlcpy(char *dst, const char *src, size_t size)
+{
+    size_t srclen = strlen(src);
+
+    if (size > 0) {
+        size_t copylen = (srclen >= size) ? size - 1 : srclen;
+        memcpy(dst, src, copylen);
+        dst[copylen] = '\0';
+    }
+}
+#endif
+
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
  * following line.
@@ -83,13 +96,31 @@ bool q_insert_tail(struct list_head *head, char *s)
 /* Remove an element from head of queue */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head || list_empty(head))
+        return NULL;
+
+    element_t *ele = list_entry(head->next, element_t, list);
+    list_del_init(head->next);
+
+    if (sp && bufsize > 0)
+        strlcpy(sp, ele->value, bufsize);
+
+    return ele;
 }
 
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head || list_empty(head))
+        return NULL;
+
+    element_t *ele = list_entry(head->prev, element_t, list);
+    list_del_init(head->prev);
+
+    if (sp && bufsize > 0)
+        strlcpy(sp, ele->value, bufsize);
+
+    return ele;
 }
 
 /* Return number of elements in queue */
