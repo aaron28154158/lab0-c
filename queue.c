@@ -151,40 +151,44 @@ bool q_delete_mid(struct list_head *head)
 /* Delete all nodes that have duplicate string */
 bool q_delete_dup(struct list_head *head)
 {
+    // Return false if queue is NULL or empty
     if (!head || list_empty(head))
         return false;
 
+    // If there's only one element, there are no duplicates.
     if (list_is_singular(head))
         return true;
 
-    struct list_head *pos = head->next, *next = pos->next;
-    while (pos->next != head) {
-        const element_t *pos_ele = list_entry(pos, element_t, list);
-        bool need_del = false;
+    // Traverse through the list starting from the first real element
+    struct list_head *cur = head->next;
+    while (cur != head) {
+        // Declare as pointer to const to indicate no modification to cur_ele
+        const element_t *cur_ele = list_entry(cur, element_t, list);
 
-        // Ensure 'next' is not head before comparing values
-        while (next != head &&
-               strcmp(pos_ele->value,
-                      list_entry(next, element_t, list)->value) == 0) {
-            need_del = true;
-            struct list_head *dup = pos;  // current duplicate
-            pos = next;                   // advance pos to next
-            next = pos->next;             // update next
-            list_del(dup);
-            q_release_element(list_entry(dup, element_t, list));
-        }
-        if (need_del) {
-            // Delete the last node of the duplicate group
-            struct list_head *dup = pos;
-            pos = next;  // move pos to the next new value (or head)
-            list_del(dup);
-            q_release_element(list_entry(dup, element_t, list));
+        // Check if the next node exists and has the same value as the current
+        // node
+        if (strcmp(cur_ele->value,
+                   list_entry(cur->next, element_t, list)->value) == 0) {
+            // Duplicate group detected: remove all nodes with this value
+
+            // Delete all duplicates following the current node
+            while (cur->next != head &&
+                   strcmp(cur_ele->value,
+                          list_entry(cur->next, element_t, list)->value) == 0) {
+                struct list_head *dup = cur->next;
+                list_del(dup);
+                q_release_element(list_entry(dup, element_t, list));
+            }
+            // Delete the first node of the duplicate group as well
+            struct list_head *tmp = cur;
+            cur = cur->next;  // Advance pointer before deletion
+            list_del(tmp);
+            q_release_element(list_entry(tmp, element_t, list));
         } else {
-            pos = next;
-            next = pos->next;
+            // No duplicate: move to the next node
+            cur = cur->next;
         }
     }
-
     return true;
 }
 
