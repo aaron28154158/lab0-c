@@ -4,19 +4,6 @@
 
 #include "queue.h"
 
-#ifndef HAVE_STRLCPY
-void strlcpy(char *dst, const char *src, size_t size)
-{
-    size_t srclen = strlen(src);
-
-    if (size > 0) {
-        size_t copylen = (srclen >= size) ? size - 1 : srclen;
-        memcpy(dst, src, copylen);
-        dst[copylen] = '\0';
-    }
-}
-#endif
-
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
  * following line.
@@ -172,7 +159,7 @@ bool q_delete_dup(struct list_head *head)
 
     struct list_head *pos = head->next, *next = pos->next;
     while (pos->next != head) {
-        element_t *pos_ele = list_entry(pos, element_t, list);
+        const element_t *pos_ele = list_entry(pos, element_t, list);
         bool need_del = false;
 
         // Ensure 'next' is not head before comparing values
