@@ -28,7 +28,7 @@ void q_free(struct list_head *head)
     if (!head)
         return;
 
-    element_t *pos, *next;
+    element_t *pos = NULL, *next = NULL;
     list_for_each_entry_safe (pos, next, head, list) {
         list_del(&pos->list);
         q_release_element(pos);
@@ -209,7 +209,16 @@ void q_swap(struct list_head *head)
 }
 
 /* Reverse elements in queue */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *temp = NULL, *safe = NULL;
+
+    list_for_each_safe (temp, safe, head)
+        list_move(temp, head);
+}
 
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
