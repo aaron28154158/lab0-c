@@ -28,15 +28,15 @@ void q_free(struct list_head *head)
     if (!head)
         return;
 
-    struct list_head *pos = NULL, *next = NULL;
-    list_for_each_safe (pos, next, head) {
-        list_del(pos);
-        element_t *tmp = list_entry(pos, element_t, list);
-        q_release_element(tmp);
+    element_t *pos, *next;
+    list_for_each_entry_safe (pos, next, head, list) {
+        list_del(&pos->list);
+        q_release_element(pos);
     }
 
     free(head);
 }
+
 
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
