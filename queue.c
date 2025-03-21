@@ -4,12 +4,6 @@
 
 #include "queue.h"
 
-/* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
- * but some of them cannot occur. You can suppress them by adding the
- * following line.
- *   cppcheck-suppress nullPointer
- */
-
 /* Create an empty queue */
 struct list_head *q_new()
 {
@@ -29,7 +23,7 @@ void q_free(struct list_head *head)
         return;
 
     element_t *pos = NULL, *next = NULL;
-    list_for_each_entry_safe (pos, next, head, list) {
+    list_for_each_entry_safe(pos, next, head, list) {
         list_del(&pos->list);
         q_release_element(pos);
     }
@@ -119,7 +113,7 @@ int q_size(struct list_head *head)
     int len = 0;
     struct list_head *li;
 
-    list_for_each (li, head)
+    list_for_each(li, head)
         len++;
 
     return len;
@@ -216,7 +210,7 @@ void q_reverse(struct list_head *head)
 
     struct list_head *temp = NULL, *safe = NULL;
 
-    list_for_each_safe (temp, safe, head)
+    list_for_each_safe(temp, safe, head)
         list_move(temp, head);
 }
 
@@ -228,7 +222,7 @@ void q_reverseK(struct list_head *head, int k)
 
     int len = 0;
     struct list_head *node;
-    list_for_each (node, head)
+    list_for_each(node, head)
         len++;
 
     // 'pre' points to the tail of the processed segment (initially the dummy
