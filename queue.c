@@ -388,8 +388,37 @@ int q_descend(struct list_head *head)
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
  * order */
-int q_merge(struct list_head *head, bool descend)
+int q_merge(struct list_head *chain_head, bool descend)
 {
-    // https://leetcode.com/problems/merge-k-sorted-lists/
-    return 0;
+    // If the chain is empty or has only one queue, return its size.
+    if (!chain_head || list_empty(chain_head) || list_is_singular(chain_head)) {
+        if (!chain_head || list_empty(chain_head))
+            return 0;
+        queue_contex_t *ctx =
+            list_entry(chain_head->next, queue_contex_t, chain);
+        return ctx->size;
+    }
+
+    // Use the first queue context as the target for merging.
+    queue_contex_t *first_ctx =
+        list_entry(chain_head->next, queue_contex_t, chain);
+
+    // Merge all other queues into the first.
+    struct list_head *pos, *n;
+    list_for_each_safe(pos, n, chain_head) {
+        queue_contex_t *ctx = list_entry(pos, queue_contex_t, chain);
+        if (ctx == first_ctx)
+            continue;  // Skip the target queue.
+        if (ctx->q && !list_empty(ctx->q)) {
+            // Append ctx->q to the tail of first_ctx->q.
+            list_splice_tail_init(ctx->q, first_ctx->q);
+            first_ctx->size += ctx->size;
+            ctx->size = 0;
+        }
+    }
+
+    // Sort the merged queue.
+    q_sort(first_ctx->q, descend);
+
+    return first_ctx->size;
 }
