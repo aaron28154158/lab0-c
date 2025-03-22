@@ -144,43 +144,33 @@ bool q_delete_mid(struct list_head *head)
 /* Delete all nodes that have duplicate string */
 bool q_delete_dup(struct list_head *head)
 {
-    // Return false if queue is NULL or empty
     if (!head || list_empty(head))
         return false;
 
-    // If there's only one element, there are no duplicates.
-    if (list_is_singular(head))
-        return true;
-
-    // Traverse through the list starting from the first real element
     struct list_head *cur = head->next;
     while (cur != head) {
-        // Declare as pointer to const to indicate no modification to cur_ele
-        const element_t *cur_ele = list_entry(cur, element_t, list);
+        element_t *e = list_entry(cur, element_t, list);
+        bool duplicated = false;
 
-        // Check if the next node exists and has the same value as the current
-        // node
-        if (strcmp(cur_ele->value,
-                   list_entry(cur->next, element_t, list)->value) == 0) {
-            // Duplicate group detected: remove all nodes with this value
-
-            // Delete all duplicates following the current node
-            while (cur->next != head &&
-                   strcmp(cur_ele->value,
-                          list_entry(cur->next, element_t, list)->value) == 0) {
-                struct list_head *dup = cur->next;
-                list_del(dup);
-                q_release_element(list_entry(dup, element_t, list));
-            }
-            // Delete the first node of the duplicate group as well
-            struct list_head *tmp = cur;
-            cur = cur->next;  // Advance pointer before deletion
+        // Check if subsequent nodes have the same string value
+        while (cur->next != head &&
+               strcmp(e->value,
+                      list_entry(cur->next, element_t, list)->value) == 0) {
+            duplicated = true;
+            // Remove the duplicate node
+            struct list_head *tmp = cur->next;
             list_del(tmp);
             q_release_element(list_entry(tmp, element_t, list));
-        } else {
-            // No duplicate: move to the next node
-            cur = cur->next;
         }
+
+        // If duplicates were found, also remove the first occurrence
+        struct list_head *next = cur->next;
+        if (duplicated) {
+            list_del(cur);
+            q_release_element(e);
+        }
+
+        cur = next;
     }
     return true;
 }
