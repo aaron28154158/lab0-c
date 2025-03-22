@@ -136,7 +136,7 @@ bool q_delete_mid(struct list_head *head)
     list_del(slow);
 
     // Retrieve the 'element_t' structure containing the middle node
-    q_release_element(list_entry(slow, element_t, list););
+    q_release_element(list_entry(slow, element_t, list));
 
     return true;
 }
